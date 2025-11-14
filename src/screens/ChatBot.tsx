@@ -257,8 +257,8 @@ const ChatBot: React.FC<Props> = ({ user }) => {
   );
 
   return (
-    // ensure header sits below the status bar / notch
-    <View style={[styles.container, { paddingTop: insets.top }]}> 
+    // ===== ALTERAÇÃO: Removido paddingTop: insets.top daqui =====
+    <View style={styles.container}> 
       <View style={styles.content}>
         {sidebarVisible && renderSidebar()}
         
@@ -279,8 +279,8 @@ const ChatBot: React.FC<Props> = ({ user }) => {
 
           <KeyboardAvoidingView
             style={styles.chatBody}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={90}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0} // Ajuste fino, se necessário
           >
             <ScrollView
               ref={scrollRef}
@@ -300,7 +300,8 @@ const ChatBot: React.FC<Props> = ({ user }) => {
               )}
             </ScrollView>
 
-            <View style={styles.inputContainer}>
+            {/* Este paddingBottom já estava correto e cuida do espaço do "home indicator" */}
+            <View style={[styles.inputContainer, { paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }]}>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
@@ -456,6 +457,7 @@ const styles = StyleSheet.create({
   },
   chatBody: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   messagesScroll: {
     flex: 1,
@@ -463,6 +465,8 @@ const styles = StyleSheet.create({
   messagesContent: {
     padding: 16,
     flexGrow: 1,
+    justifyContent: 'flex-end',
+    minHeight: '100%',
   },
   messageContainer: {
     flexDirection: 'row',
@@ -528,7 +532,8 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   inputContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8, // Adicionado um padding superior
     borderTopWidth: 1,
     borderTopColor: '#e5e5e5',
     backgroundColor: '#fff',
@@ -547,7 +552,8 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     maxHeight: 120,
-    paddingVertical: 8,
+    paddingTop: Platform.OS === 'ios' ? 8 : 0, // Ajuste de padding para iOS
+    paddingBottom: Platform.OS === 'ios' ? 8 : 0, // Ajuste de padding para iOS
     color: '#333',
   },
   sendButton: {
@@ -558,6 +564,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
+    marginBottom: Platform.OS === 'ios' ? 4 : 0, // Leve ajuste para alinhar no iOS
   },
   sendButtonDisabled: {
     backgroundColor: '#ccc',

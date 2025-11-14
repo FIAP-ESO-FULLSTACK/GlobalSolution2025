@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080'; // WILL -> substituir pela url que leva as infos de login
+export const BASE_URL = 'http://localhost:8080'; // WILL -> substituir pela url que leva as infos de login
 export const login = async (email, password) => {
   if (email === 'teste@teste' && password === '123') {
     return {
