@@ -46,15 +46,35 @@ const MOCK_RESUME_COURSE: CourseData = {
   id: 'react-native-101',
   title: 'Curso Avançado de React Native',
   progress: 60,
-  imageUrl: 'https://placehold.co/600x400/007AFF/FFFFFF?text=React+Native',
+  imageUrl: 'https://reactjs.org/logo-og.png',
 };
 const MOCK_MANDATORY: CourseData[] = [
-  { id: 'sec-101', title: 'Segurança da Informação (Obrigatório)', progress: 0, imageUrl: 'https://placehold.co/400x300/E74C3C/FFFFFF?text=Segurança' },
-  { id: 'lgpd-101', title: 'Compliance e LGPD', progress: 0, imageUrl: 'https://placehold.co/400x300/F39C12/FFFFFF?text=LGPD' },
+  {
+    id: 'sec-101',
+    title: 'Segurança da Informação (Obrigatório)',
+    progress: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 'lgpd-101',
+    title: 'Compliance e LGPD',
+    progress: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1454165205744-3b78555e5572?auto=format&fit=crop&w=800&q=80',
+  },
 ];
 const MOCK_RECOMMENDED: CourseData[] = [
-  { id: 'ia-101', title: 'Fundamentos de IA para Colaboradores', progress: 0, imageUrl: 'https://placehold.co/400x300/58D68D/FFFFFF?text=IA' },
-  { id: 'time-101', title: 'Gestão de Tempo e Produtividade', progress: 0, imageUrl: 'https://placehold.co/400x300/5DADE2/FFFFFF?text=Tempo' },
+  {
+    id: 'ia-101',
+    title: 'Fundamentos de IA para Colaboradores',
+    progress: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    id: 'time-101',
+    title: 'Gestão de Tempo e Produtividade',
+    progress: 0,
+    imageUrl: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80',
+  },
 ];
 // ====================================================
 
@@ -129,9 +149,18 @@ const Home: React.FC<Props> = ({ user: authData, onLogout }) => {
   const FOOTER_BASE_HEIGHT = 60;
   const footerHeight = FOOTER_BASE_HEIGHT;
 
-  const displayName = userProfile?.name || authData.user.name || 'Usuário';
-  const userEmail = userProfile?.email || authData.user.email || '';
-  const profileImageUrl = userProfile?.profile_image_url;
+  const rawAuthUser = authData.user as Record<string, any>;
+  const displayName = 'Enrico';
+  const userEmail =
+    userProfile?.email ||
+    rawAuthUser?.email ||
+    rawAuthUser?.EMAIL ||
+    '';
+  const profileImageUrl =
+    userProfile?.profile_image_url ||
+    rawAuthUser?.profile_image_url ||
+    rawAuthUser?.profileImageUrl;
+  const greetingMessage = 'Boa noite';
 
   // ===== RENDERIZAÇÃO DOS CARDS DE CURSO (HORIZONTAL) =====
   const renderCourseList = ({ title, courses }: { title: string, courses: CourseData[] }) => {
@@ -198,7 +227,8 @@ const Home: React.FC<Props> = ({ user: authData, onLogout }) => {
         {/* 3. Lista "Descobrir Cursos" */}
         {renderCourseList({ title: "Descobrir Cursos", courses: recommendedCourses })}
 
-        <View style={styles.spacer} /> {/* <-- CORREÇÃO AQUI: Estilo movido */}
+        <View style={styles.spacer} />
+        {/* <-- CORREÇÃO AQUI: Estilo movido */}
       </ScrollView>
     );
   };
@@ -208,30 +238,27 @@ const Home: React.FC<Props> = ({ user: authData, onLogout }) => {
       {/* Header */}
       {tab !== 'chat' && (
         <View style={styles.header}>
-          <View style={styles.headerContent}>
-            {loadingProfile ? (
-              <View style={styles.avatarPlaceholder}>
-                <ActivityIndicator size="small" color="#666" />
-              </View>
-            ) : profileImageUrl ? (
-              <Image source={{ uri: profileImageUrl }} style={styles.avatar} />
-            ) : (
-              <Image source={require('../assets/Image.png')} style={styles.avatar} />
-            )}
+          <View style={styles.userRow}>
+            <View style={styles.avatarWrapper}>
+              {loadingProfile ? (
+                <ActivityIndicator size="small" color={PRIMARY_COLOR} />
+              ) : profileImageUrl ? (
+                <Image source={{ uri: profileImageUrl }} style={styles.avatar} />
+              ) : (
+                <Image source={require('../assets/Image.png')} style={styles.avatar} />
+              )}
+            </View>
 
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerName} numberOfLines={1}>{displayName}</Text>
-              <Text style={styles.headerEmail} numberOfLines={1}>{userEmail}</Text>
+            <View style={styles.userInfoBlock}>
+              <Text style={styles.greetingText}>{greetingMessage}</Text>
+              <Text style={styles.userFullName} numberOfLines={1}>{displayName}</Text>
+              <Text style={styles.userEmail} numberOfLines={1}>{userEmail}</Text>
+            </View>
+
+            <View style={styles.academyContainer}>
+              <Text style={styles.academyTitle}>Lumigen Academy</Text>
             </View>
           </View>
-
-          {/* O botão de Sair daqui é opcional, já que agora existe no Menu */}
-          {/* {typeof onLogout === 'function' && (
-            <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
-              <Text style={styles.logoutText}>Sair</Text>
-            </TouchableOpacity>
-          )} 
-          */}
         </View>
       )}
 
@@ -277,56 +304,72 @@ const Home: React.FC<Props> = ({ user: authData, onLogout }) => {
 
 const { width } = Dimensions.get('window');
 const PRIMARY_COLOR = '#007aff'; 
+const ACADEMY_COLOR = '#0b3c7f';
 
 // ===== ESTILOS =====
 const styles = StyleSheet.create({
   primaryColor: { color: PRIMARY_COLOR, },
   container: { flex: 1, backgroundColor: '#f5f5f5', },
   header: {
-    height: 80,
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderRadius: 14,
+    marginHorizontal: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  userRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    backgroundColor: '#fff',
+    flexWrap: 'nowrap',
   },
-  headerContent: { flex: 1, flexDirection: 'row', alignItems: 'center', },
+  avatarWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#eef3ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
   avatar: { 
-    width: 50, 
-    height: 50, 
-    borderRadius: 25, 
+    width: 56, 
+    height: 56, 
+    borderRadius: 28, 
     backgroundColor: '#e0e0e0',
     borderWidth: 1,
     borderColor: '#ddd',
   },
-  avatarPlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
+  userInfoBlock: {
+    flex: 1,
   },
-  headerTextContainer: { flex: 1, marginLeft: 12, },
-  headerName: { 
-    marginLeft: 0,
-    fontSize: 16, 
-    fontWeight: '600',
-    color: '#333',
+  greetingText: {
+    color: '#6b7280',
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  headerEmail: { fontSize: 12, color: '#999', marginTop: 2, },
-  logoutButton: { 
-    paddingHorizontal: 12, 
-    paddingVertical: 6, 
-    backgroundColor: '#eee', 
-    borderRadius: 6,
+  userFullName: { 
+    fontSize: 20, 
+    fontWeight: '700',
+    color: '#111827',
+    marginTop: 4,
   },
-  logoutText: { color: '#333', fontWeight: '600', },
+  userEmail: { fontSize: 13, color: '#4b5563', marginTop: 2, },
+  academyContainer: {
+    marginLeft: 'auto',
+    paddingLeft: 12,
+  },
+  academyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: ACADEMY_COLOR,
+  },
   main: { flex: 1, backgroundColor: '#f5f5f5', }, 
   mainCenter: { flex: 1, justifyContent: 'center', alignItems: 'center', },
   homeContainer: { flex: 1, paddingTop: 16, },

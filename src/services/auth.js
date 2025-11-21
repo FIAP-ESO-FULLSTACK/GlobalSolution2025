@@ -1,34 +1,31 @@
-export const BASE_URL = 'http://localhost:8080'; // WILL -> substituir pela url que leva as infos de login
-export const login = async (email, password) => {
-  if (email === 'teste@teste' && password === '123') {
-    return {
-      token: 'test-token-123',
-      user: {
-        email: 'teste@teste',
-        name: 'Usuário Teste',
-      },
-    };
-  }
+export const BASE_URL = 'http://localhost:8082'; // ajuste conforme o ambiente do backend Spring
 
+/**
+ * Autentica contra o Spring Security (formLogin em /login) e recebe cookie de sessão.
+ */
+export const login = async (email, password) => {
   try {
-    const response = await fetch(`${BASE_URL}/api/auth/login`, {
+    const response = await fetch(`${BASE_URL}/login`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
-        email: email,
+      credentials: 'include', // garante que o cookie JSESSIONID seja recebido/reenviado
+      body: new URLSearchParams({
+        username: email,
         password: password,
-      }),
+      }).toString(),
     });
 
     if (!response.ok) {
       throw new Error('Email ou senha inválidos');
     }
 
-    const data = await response.json();
-    return data;
-
+    const message = await response.text();
+    return {
+      message: message || 'Login realizado com sucesso.',
+      user: { email },
+    };
   } catch (error) {
     console.error('Erro na chamada de login:', error);
     throw error;
