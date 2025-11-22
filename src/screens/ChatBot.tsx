@@ -82,6 +82,79 @@ const ChatBot: React.FC<Props> = ({ user }) => {
     scrollRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
+  // Anima a resposta com um "Pensando..." seguido de digitação gradual
+  const typeAssistantResponse = (responseText: string, convId: string, userMessage: Message) => {
+    const assistantId = `assistant-${Date.now()}`;
+    const baseAssistant: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: 'Pensando...',
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, baseAssistant]);
+
+    const startTyping = () => {
+      setIsLoading(false); // remove o indicador "Pensando..." enquanto digita
+      let index = 0;
+      const step = 3; // número de caracteres por "tick"
+      const interval = setInterval(() => {
+        index += step;
+        const currentText = responseText.slice(0, index);
+
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === assistantId ? { ...msg, content: currentText } : msg))
+        );
+
+        if (index >= responseText.length) {
+          clearInterval(interval);
+          const finalAssistant = { ...baseAssistant, content: responseText };
+          setConversations((prev) =>
+            prev.map((conv) =>
+              conv.id === convId
+                ? {
+                    ...conv,
+                    messages: [...conv.messages, userMessage, finalAssistant],
+                    updatedAt: new Date(),
+                  }
+                : conv
+            )
+          );
+          setIsLoading(false);
+        }
+      }, 20);
+    };
+
+    // breve pausa antes de começar a digitar, imitando "pensando..."
+    setTimeout(startTyping, 600);
+  };
+
+  // Resposta simulada com ramificações simples para Python e Java
+  const buildAssistantResponse = (question: string): string => {
+    const lower = question.toLowerCase();
+
+    if (lower.includes('python')) {
+      return (
+        'Temos um curso fictício chamado "Lógica de Programação com Python". ' +
+        'Nele você pratica decomposição de problemas, raciocínio com variáveis, condicionais e loops, ' +
+        'além de estruturar funções pequenas e reutilizáveis. ' +
+        'A lógica de programação é o passo a passo que organiza o pensamento antes mesmo do código; ' +
+        'Python é perfeito para isso porque a sintaxe é simples e deixa você focar no raciocínio.'
+      );
+    }
+
+    if (lower.includes('java')) {
+      return (
+        'Para perguntas sobre Java, recomendo o curso fictício "Estruturação de Classes em Java". ' +
+        'Você aprende a modelar domínios em classes, organizar atributos e métodos e criar relações claras entre objetos. ' +
+        'Java usa classes porque segue o paradigma de orientação a objetos: ' +
+        'encapsula estado/comportamento, facilita reuso (herança/interfaces) e deixa o código modular e testável.'
+      );
+    }
+
+    return `Esta é uma resposta simulada para: "${question}"\n\nQuando integrar o LangChain, esta mensagem será substituída pela resposta real da IA.`;
+  };
+
   // Função para criar nova conversa
   const createNewConversation = () => {
     const newConv: Conversation = {
@@ -148,29 +221,12 @@ const ChatBot: React.FC<Props> = ({ user }) => {
     // const response = await callLangChainAPI(text, messages);
     // Simulação de resposta (resposta do LangChain)
     setTimeout(() => {
-      const assistantMessage: Message = {
-        id: String(Date.now() + 1),
-        role: 'assistant',
-        content: `Esta é uma resposta simulada para: "${text}"\n\nQuando integrar o LangChain, esta mensagem será substituída pela resposta real da IA.`,
-        timestamp: new Date(),
-      };
-      
-      setMessages((prev) => [...prev, assistantMessage]);
-      
-      // Atualiza a conversa
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.id === convId
-            ? {
-                ...conv,
-                messages: [...conv.messages, userMessage, assistantMessage],
-                updatedAt: new Date(),
-              }
-            : conv
-        )
-      );
-      
-      setIsLoading(false);
+      if (!convId) {
+        setIsLoading(false);
+        return;
+      }
+      const responseText = buildAssistantResponse(text);
+      typeAssistantResponse(responseText, convId, userMessage);
     }, 1500);
   };
 
@@ -257,8 +313,8 @@ const ChatBot: React.FC<Props> = ({ user }) => {
   );
 
   return (
-    // ensure header sits below the status bar / notch
-    <View style={[styles.container, { paddingTop: insets.top }]}> 
+    // ===== ALTERAÇÃO: Removido paddingTop: insets.top daqui =====
+    <View style={styles.container}> 
       <View style={styles.content}>
         {sidebarVisible && renderSidebar()}
         
@@ -279,8 +335,8 @@ const ChatBot: React.FC<Props> = ({ user }) => {
 
           <KeyboardAvoidingView
             style={styles.chatBody}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={90}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0} // Ajuste fino, se necessário
           >
             <ScrollView
               ref={scrollRef}
@@ -300,7 +356,8 @@ const ChatBot: React.FC<Props> = ({ user }) => {
               )}
             </ScrollView>
 
-            <View style={styles.inputContainer}>
+            {/* Este paddingBottom já estava correto e cuida do espaço do "home indicator" */}
+            <View style={[styles.inputContainer, { paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }]}>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
@@ -456,6 +513,7 @@ const styles = StyleSheet.create({
   },
   chatBody: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   messagesScroll: {
     flex: 1,
@@ -463,6 +521,8 @@ const styles = StyleSheet.create({
   messagesContent: {
     padding: 16,
     flexGrow: 1,
+    justifyContent: 'flex-end',
+    minHeight: '100%',
   },
   messageContainer: {
     flexDirection: 'row',
@@ -528,7 +588,8 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   inputContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8, // Adicionado um padding superior
     borderTopWidth: 1,
     borderTopColor: '#e5e5e5',
     backgroundColor: '#fff',
@@ -547,7 +608,8 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     maxHeight: 120,
-    paddingVertical: 8,
+    paddingTop: Platform.OS === 'ios' ? 8 : 0, // Ajuste de padding para iOS
+    paddingBottom: Platform.OS === 'ios' ? 8 : 0, // Ajuste de padding para iOS
     color: '#333',
   },
   sendButton: {
@@ -558,6 +620,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
+    marginBottom: Platform.OS === 'ios' ? 4 : 0, // Leve ajuste para alinhar no iOS
   },
   sendButtonDisabled: {
     backgroundColor: '#ccc',
