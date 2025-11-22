@@ -28,12 +28,12 @@ type Props = {
 
 // ===== MOCK DATA (Apenas para teste, agora com 6 cursos) =====
 const MOCK_COURSES: CourseData[] = [
-  { id: '1', title: 'Curso de React Native (Exemplo)', progress: 45 },
-  { id: '2', title: 'Introdução a JavaScript (Exemplo)', progress: 80 },
-  { id: '3', title: 'Design de UI/UX (Exemplo)', progress: 10 },
-  { id: '4', title: 'Banco de Dados SQL (Exemplo)', progress: 0 },
-  { id: '5', title: 'API com Spring Boot (Exemplo)', progress: 25 },
-  { id: '6', title: 'Metodologias Ágeis (Exemplo)', progress: 50 },
+  { id: '1', title: 'Curso de React Native', progress: 45 },
+  { id: '2', title: 'Introdução a JavaScript', progress: 80 },
+  { id: '3', title: 'Design de UI/UX', progress: 10 },
+  { id: '4', title: 'Banco de Dados SQL', progress: 0 },
+  { id: '5', title: 'API com Spring Boot', progress: 25 },
+  { id: '6', title: 'Metodologias Ágeis', progress: 50 },
 ];
 
 // Componente "Botão de Menu" reutilizável
