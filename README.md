@@ -1,97 +1,113 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📱 GlobalSolution2025 (Lumigen)
 
-# Getting Started
+Projeto desenvolvido em React Native. Este documento guia o processo de configuração do ambiente, instalação de dependências e execução em Android e iOS.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## ⚙️ Referência do Ambiente (Versões)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+Para garantir que o projeto compile corretamente, certifique-se de que seu ambiente de desenvolvimento (Android Studio / JDK) suporte as seguintes versões definidas no `build.gradle` e `gradle-wrapper.properties`.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+| Ferramenta / SDK | Versão |
+| :--- | :--- |
+| **Gradle** | `9.0.0` |
+| **Kotlin** | `2.1.20` |
+| **Android Build Tools** | `36.0.0` |
+| **Compile SDK** | `36` |
+| **Target SDK** | `36` |
+| **Min SDK** | `24` |
+| **NDK** | `27.1.12297006` |
 
-```sh
-# Using npm
+---
+
+## 🚀 Guia de Instalação e Execução
+
+Siga os passos abaixo estritamente na ordem para evitar erros de configuração.
+
+### 1. Clonar e Preparar
+O erro mais comum é esquecer de entrar na pasta do projeto.
+
+# 1. Clone o repositório
+git clone <URL_DO_SEU_REPO>
+
+# 2. Entre na pasta do projeto (IMPORTANTE)
+cd GlobalSolution2025
+
+# 3. Instale as dependências do Node
+npm install
+
+2. Configuração Específica: iOS (Mac Only)
+
+O iOS requer a instalação manual das dependências nativas (Pods).
+
+# 1. Entre na pasta ios
+cd ios
+
+# 2. Instale os Pods
+pod install
+
+# 3. Volte para a raiz do projeto
+cd ..
+
+    Nota para Mac Apple Silicon (M1/M2/M3): Se o comando pod install falhar, tente: arch -x86_64 pod install
+
+# 3. Configuração Específica: Android
+
+O Android baixa o Gradle e dependências automaticamente na primeira execução.
+
+    Certifique-se de ter um emulador aberto ou um dispositivo físico conectado via USB (com depuração USB ativada).
+
+    Verifique se o arquivo android/local.properties existe apontando para seu SDK (se não existir, o Android Studio cria automaticamente ao abrir a pasta android).
+
+# 4. Rodando o Aplicativo
+
+Com tudo configurado, abra dois terminais na raiz do projeto (GlobalSolution2025).
+
+Terminal 1: Iniciar o Metro Bundler
+Bash
+
 npm start
 
-# OR using Yarn
-yarn start
-```
+# Terminal 2: Instalar no dispositivo
 
-## Step 2: Build and run your app
+# Para iOS:
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
 npm run ios
+# ou
+npx react-native run-ios
 
-# OR using Yarn
-yarn ios
-```
+# Para Android:
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+npm run android
+# ou
+npx react-native run-android
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+# 🛠 Solução de Problemas (Troubleshooting)
 
-## Step 3: Modify your app
+Erro: Task :app:installDebug FAILED (Android)
 
-Now that you have successfully run the app, let's make changes!
+Se o build falhar, geralmente é necessário limpar o cache do Gradle.
+Bash
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+cd android
+./gradlew clean
+cd ..
+npx react-native run-android
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Erro: Unable to open base configuration... (iOS)
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+Isso significa que os Pods não foram instalados ou estão corrompidos.
 
-## Congratulations! :tada:
 
-You've successfully run and modified your React Native App. :partying_face:
+cd ios
+rm -rf Pods
+rm -rf Podfile.lock
+pod install
+cd ..
 
-### Now what?
+Erro de Versão do Java/Gradle
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+Como este projeto usa Gradle 9.0.0, certifique-se de estar usando o Java JDK 17 ou superior. Verifique sua versão com:
 
-# Troubleshooting
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+java -version
